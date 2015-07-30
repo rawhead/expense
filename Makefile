@@ -9,7 +9,7 @@ $(APP): $(OBJ)
 	$(CC) -o $(APP) $(OBJ) $(CC_OPT)
 
 %.o: %.c
-	$(CC) -c $<
+	$(CC) $(CC_OPT) -c $<
 
 run: $(APP)
 	./$(APP)
