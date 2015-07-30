@@ -3,7 +3,7 @@ APP = expense
 CC = gcc
 CC_OPT = -Wall -g -std=gnu99
 
-OBJ = main.o
+OBJ = main.o db.o
 
 $(APP): $(OBJ)
 	$(CC) -o $(APP) $(OBJ) $(CC_OPT)
