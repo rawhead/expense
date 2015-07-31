@@ -17,9 +17,11 @@ help\t\t\t\tshow this text\n"
 #define OPT_HELP_2  "-h"
 #define OPT_HELP_3  "--help"
 
+char test_date(char *string);
+
 int main(int argc, char **args)
 {
-  if(argc > 6)
+  if(argc > 4)
   {
     perror("Too much arguments. Aborting.\n");
     printf(USAGE, args[0]);
@@ -41,46 +43,101 @@ int main(int argc, char **args)
 
   if(!strcmp(args[1], OPT_LIST))
   {
-    if(argc > 5)
+    if(argc > 4)
     {
       perror("Too much Arguments for option \"list\". Aborting\n");
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(argc > 4)
-    {
-
-    }
     if(argc > 3)
     {
-
+      if(!test_date(args[2]))
+      {
+        fprintf(stderr, "The format of the given date \"%s\" is\
+            not correct. Please use following format: yyyy-mm-dd.\
+            Aborting.\n", args[2]);
+        return 0;
+      }
+      args++;
+    }
+    if(!test_date(args[2]))
+    {
+      fprintf(stderr, "The format of the given date \"%s\" is\
+          not correct. Please use following format: yyyy-mm-dd.\
+          Aborting.\n", args[2]);
+      return 0;
     }
   }
 
   if(!strcmp(args[1], OPT_ADD))
   {
-    if(argc < 5)
+    if(argc < 4)
     {
       perror("The optione \"add\" needs more arguments. Aborting.\n");
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(argc > 5)
+    if(argc > 4)
     {
+      if(!test_date(args[2]))
+      {
+        fprintf(stderr, "The format of the given date \"%s\" is\
+            not correct. Please use following format: yyyy-mm-dd.\
+            Aborting.\n", args[2]);
+        return 0;
+      }
       args++;
     }
-  }
 
-  if(!strcmp(args[1], OPT_DELETE))
-  {
-    if(argc != 4)
+    if(!strcmp(args[1], OPT_DELETE))
     {
-      perror("Wrong number of arguments for option \"delete\". Aborting\n");
-      printf(USAGE, args[0]);
-      return EINVAL;
+      if(argc != 3)
+      {
+        perror("Wrong number of arguments for option \"delete\". Aborting\n");
+        printf(USAGE, args[0]);
+        return EINVAL;
+      }
     }
-  }
 
-  fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
-  return EINVAL;
+    fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
+    return EINVAL;
+  }
+}
+
+char test_date(char *string)
+{
+  int i = 0;
+
+  if(strlen(string) != 10)
+    return 0;
+
+  for(i = 0; i < 4; i++)
+  {
+    if(string[i] < 48 ||
+       string[i] > 57)
+      return 0;
+  }
+  i++;
+
+  if(string[i] != '-')
+    return 0;
+
+  for(i = 5; i < 7; i++)
+  {
+    if(string[i] < 48 ||
+       string[i] > 57)
+      return 0;
+  }
+  i++;
+
+  if(string[i] != '-')
+    return 0;
+
+  for(i = 9; i < 11; i++)
+  {
+    if(string[i] < 48 ||
+       string[i] > 57)
+      return 0;
+  }
+  return 1;
 }
