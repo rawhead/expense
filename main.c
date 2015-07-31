@@ -19,6 +19,13 @@ help\t\t\t\tshow this text\n"
 
 int main(int argc, char **args)
 {
+  if(argc > 6)
+  {
+    perror("Too much arguments. Aborting.\n");
+    printf(USAGE, args[0]);
+    return EINVAL;
+  }
+
   if(argc < 2)
   {
     return 0;
@@ -34,17 +41,44 @@ int main(int argc, char **args)
 
   if(!strcmp(args[1], OPT_LIST))
   {
+    if(argc > 5)
+    {
+      perror("Too much Arguments for option \"list\". Aborting\n");
+      printf(USAGE, args[0]);
+      return EINVAL;
+    }
+    if(argc > 4)
+    {
 
+    }
+    if(argc > 3)
+    {
+
+    }
   }
 
   if(!strcmp(args[1], OPT_ADD))
   {
-
+    if(argc < 5)
+    {
+      perror("The optione \"add\" needs more arguments. Aborting.\n");
+      printf(USAGE, args[0]);
+      return EINVAL;
+    }
+    if(argc > 5)
+    {
+      args++;
+    }
   }
 
   if(!strcmp(args[1], OPT_DELETE))
   {
-
+    if(argc != 4)
+    {
+      perror("Wrong number of arguments for option \"delete\". Aborting\n");
+      printf(USAGE, args[0]);
+      return EINVAL;
+    }
   }
 
   fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
