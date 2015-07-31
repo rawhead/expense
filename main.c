@@ -60,12 +60,15 @@ int main(int argc, char **args)
       }
       args++;
     }
-    if(!test_date(args[2]))
+    if(argc > 2)
     {
-      fprintf(stderr, "The format of the given date \"%s\" is\
-          not correct. Please use following format: yyyy-mm-dd.\
-          Aborting.\n", args[2]);
-      return 0;
+      if(!test_date(args[2]))
+      {
+        fprintf(stderr, "The format of the given date \"%s\" is\
+            not correct. Please use following format: yyyy-mm-dd.\
+            Aborting.\n", args[2]);
+        return 0;
+      }
     }
   }
 
