@@ -1,5 +1,8 @@
 #include <sqlite3.h>
 
+//TODO: replace this string with dynamic option to choose database file
+#define DATABASE_FILE "/home/fenk/expense/expense.db"
+
 float dbGetSum();
 char **dbGetList();
 char **dbGetListSince(const char *date);
