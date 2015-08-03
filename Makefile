@@ -1,7 +1,7 @@
 APP = expense
 
 CC = gcc
-CC_OPT = -Wall -g -std=gnu99
+CC_OPT = -Wall -g -std=gnu99 -lsqlite3
 
 OBJ = main.o db.o
 

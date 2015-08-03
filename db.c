@@ -3,10 +3,12 @@
 //TODO: find better name
 #define TABLE_NAME "Bargeld"
 
-#define COLUMN_ID "id"
-#define COLUMN_DATE "date"
-#define COLUMN_PURPOSE "purpose"
-#define COLUMN_EXPENSE "expense"
+#define COLUMN_ID       "id"
+#define COLUMN_DATE     "date"
+#define COLUMN_PURPOSE  "purpose"
+#define COLUMN_EXPENSE  "expense"
+
+#define QUERY_GET_SUM "SELECT SUM(" COLUMN_EXPENSE ") FROM " TABLE_NAME
 
 sqlite3 *openDatabase(const char *path)
 {
@@ -28,5 +30,18 @@ float dbGetSum()
   if(!db)
     return sum;
 
-  result = sqlite3_prepare_v2(db, "SELECT SQLITE_VERSION()", -1, $
+  result = sqlite3_prepare_v2(db, QUERY_GET_SUM, -1, &statement, 0);
+
+  if(result != SQLITE_OK)
+    return sum;
+
+  result = sqlite3_step(statement);
+
+  if(result == SQLITE_ROW)
+    sum = atoi(sqlite3_column_text(statement, 0));
+
+  sqlite3_finalize(statement);
+  sqlite3_close(db);
+
+  return sum;
 }
