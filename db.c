@@ -20,9 +20,10 @@ sqlite3 *openDatabase(const char *path)
   return db;
 }
 
-double dbGetSum()
+char *dbGetSum()
 {
-  double sum = 0.001;
+  char *sum = 0;
+  char *temp;
   int result = 0;
   sqlite3_stmt *statement;
   sqlite3 *db = openDatabase(DATABASE_FILE);
@@ -38,7 +39,11 @@ double dbGetSum()
   result = sqlite3_step(statement);
 
   if(result == SQLITE_ROW)
-    sum = atoi(sqlite3_column_text(statement, 0));
+  {
+    temp = (char *)sqlite3_column_text(statement, 0);
+    sum = malloc(strlen(temp));
+    strcpy(sum, temp);
+  }
 
   sqlite3_finalize(statement);
   sqlite3_close(db);

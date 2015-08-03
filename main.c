@@ -33,13 +33,14 @@ int main(int argc, char **args)
 
   if(argc < 2)
   {
-    double sum = dbGetSum();
-    if(sum == 0.001)
+    char *sum = dbGetSum();
+    if(!sum)
     {
       perror("Something bad happened. Aborting");
       return -1;
     }
-    printf("%e\n", sum);
+    printf("%s\n", sum);
+    free(sum);
     return 0;
   }
 
