@@ -5,6 +5,7 @@
 #define USAGE "\
 %s - usage\n \
 --------\n\n \
+---\t\t\t\tshow current estate\n \
 list\t[DATE FROM [DATE TO]]\tlist saved entrys\n \
 add\t[DATE] PURPOSE EXPENSE\tadd a new entry\n \
 delete\tID\t\t\tdelete entry by id\n \
