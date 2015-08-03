@@ -17,7 +17,8 @@ help\t\t\t\tshow this text\n"
 #define OPT_HELP_2  "-h"
 #define OPT_HELP_3  "--help"
 
-char test_date(char *string);
+char test_date(const char *string);
+char test_number(const char *string);
 
 int main(int argc, char **args)
 {
@@ -53,10 +54,10 @@ int main(int argc, char **args)
     {
       if(!test_date(args[2]))
       {
-        fprintf(stderr, "The format of the given date \"%s\" is\
-            not correct. Please use following format: yyyy-mm-dd.\
-            Aborting.\n", args[2]);
-        return 0;
+        fprintf(stderr, "The format of the given date \"%s\" is \
+not correct. Please use following format: yyyy-mm-dd.\
+Aborting.\n", args[2]);
+        return EINVAL;
       }
       args++;
     }
@@ -64,10 +65,10 @@ int main(int argc, char **args)
     {
       if(!test_date(args[2]))
       {
-        fprintf(stderr, "The format of the given date \"%s\" is\
-            not correct. Please use following format: yyyy-mm-dd.\
-            Aborting.\n", args[2]);
-        return 0;
+        fprintf(stderr, "The format of the given date \"%s\" is \
+not correct. Please use following format: yyyy-mm-dd.\
+Aborting.\n", args[2]);
+        return EINVAL;
       }
     }
   }
@@ -84,10 +85,10 @@ int main(int argc, char **args)
     {
       if(!test_date(args[2]))
       {
-        fprintf(stderr, "The format of the given date \"%s\" is\
-            not correct. Please use following format: yyyy-mm-dd.\
-            Aborting.\n", args[2]);
-        return 0;
+        fprintf(stderr, "The format of the given date \"%s\" is \
+not correct. Please use following format: yyyy-mm-dd.\
+Aborting.\n", args[2]);
+        return EINVAL;
       }
       args++;
     }
@@ -100,6 +101,11 @@ int main(int argc, char **args)
         printf(USAGE, args[0]);
         return EINVAL;
       }
+      if(!test_number(args[3]))
+      {
+        perror("The value \"%s\" is not a number. Aborting\n");
+        return EINVAL;
+      }
     }
 
     fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
@@ -107,7 +113,7 @@ int main(int argc, char **args)
   }
 }
 
-char test_date(char *string)
+char test_date(const char *string)
 {
   int i = 0;
 
@@ -137,6 +143,17 @@ char test_date(char *string)
     return 0;
 
   for(i = 9; i < 11; i++)
+  {
+    if(string[i] < 48 ||
+       string[i] > 57)
+      return 0;
+  }
+  return 1;
+}
+
+char test_number(const char *string)
+{
+  for(int i = 0; i < strlen(string); i++)
   {
     if(string[i] < 48 ||
        string[i] > 57)
