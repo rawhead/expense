@@ -20,9 +20,9 @@ sqlite3 *openDatabase(const char *path)
   return db;
 }
 
-float dbGetSum()
+double dbGetSum()
 {
-  float sum = 0.001;
+  double sum = 0.001;
   int result = 0;
   sqlite3_stmt *statement;
   sqlite3 *db = openDatabase(DATABASE_FILE);

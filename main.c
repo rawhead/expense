@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include "db.h"
 
 #define USAGE "\
 %s - usage\n \
@@ -32,6 +33,13 @@ int main(int argc, char **args)
 
   if(argc < 2)
   {
+    double sum = dbGetSum();
+    if(sum == 0.001)
+    {
+      perror("Something bad happened. Aborting");
+      return -1;
+    }
+    printf("%e\n", sum);
     return 0;
   }
 
