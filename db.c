@@ -12,6 +12,8 @@
 #define QUERY_GET_LIST  "SELECT " COLUMN_ID ", " COLUMN_DATE ", " \
   COLUMN_PURPOSE ", " COLUMN_EXPENSE " FROM " TABLE_NAME
 
+struct DBList *_dbGetList(const char *query);
+
 sqlite3 *openDatabase(const char *path)
 {
   sqlite3 *db;
@@ -55,6 +57,26 @@ char *dbGetSum()
 
 struct DBList *dbGetList()
 {
+  return _dbGetList(QUERY_GET_LIST);
+}
+
+void dbClearList(struct DBList *list)
+{
+  struct DBList *temp;
+  while(list)
+  {
+    free(list->id);
+    free(list->date);
+    free(list->purpose);
+    free(list->expense);
+    temp = list;
+    list = list->next;
+    free(temp);
+  }
+}
+
+struct DBList *_dbGetList(const char *query)
+{
   struct DBList *list = 0;
   struct DBList *listCurrent = 0;
   int length = 0;
@@ -66,7 +88,7 @@ struct DBList *dbGetList()
   if(!db)
     return 0;
 
-  result = sqlite3_prepare_v2(db, QUERY_GET_LIST, -1, &statement, 0);
+  result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
   if(result != SQLITE_OK)
     return 0;
 
@@ -110,19 +132,4 @@ struct DBList *dbGetList()
   }
 
   return list;
-}
-
-void dbClearList(struct DBList *list)
-{
-  struct DBList *temp;
-  while(list)
-  {
-    free(list->id);
-    free(list->date);
-    free(list->purpose);
-    free(list->expense);
-    temp = list;
-    list = list->next;
-    free(temp);
-  }
 }

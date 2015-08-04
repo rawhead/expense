@@ -178,7 +178,7 @@ char test_date(const char *string)
 
 char test_number(const char *string)
 {
-  for(int i = 0; i < strlen(string); i++)
+  for(int i = 0; i < (int)strlen(string); i++)
   {
     if(string[i] < 48 ||
        string[i] > 57)
