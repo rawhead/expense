@@ -54,6 +54,8 @@ int main(int argc, char **args)
 
   if(!strcmp(args[1], OPT_LIST))
   {
+    struct DBList *list;
+    struct DBList *listBegin;
     if(argc > 4)
     {
       perror("Too much Arguments for option \"list\". Aborting\n");
@@ -69,7 +71,6 @@ not correct. Please use following format: yyyy-mm-dd.\
 Aborting.\n", args[2]);
         return EINVAL;
       }
-      args++;
     }
     if(argc > 2)
     {
@@ -80,9 +81,12 @@ not correct. Please use following format: yyyy-mm-dd.\
 Aborting.\n", args[2]);
         return EINVAL;
       }
+      list = dbGetListSince(args[2]);
+      goto print_list;
     }
-    struct DBList *list = dbGetList();
-    struct DBList *listBegin = list;
+    list = dbGetList();
+print_list:
+    listBegin = list;
     if(!list)
     {
       printf("No data available.\n");
@@ -151,7 +155,6 @@ char test_date(const char *string)
        string[i] > 57)
       return 0;
   }
-  i++;
 
   if(string[i] != '-')
     return 0;
@@ -162,12 +165,11 @@ char test_date(const char *string)
        string[i] > 57)
       return 0;
   }
-  i++;
 
   if(string[i] != '-')
     return 0;
 
-  for(i = 9; i < 11; i++)
+  for(i = 8; i < 10; i++)
   {
     if(string[i] < 48 ||
        string[i] > 57)

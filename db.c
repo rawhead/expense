@@ -8,11 +8,25 @@
 #define COLUMN_PURPOSE  "purpose"
 #define COLUMN_EXPENSE  "expense"
 
-#define QUERY_GET_SUM   "SELECT SUM(" COLUMN_EXPENSE ") FROM " TABLE_NAME
-#define QUERY_GET_LIST  "SELECT " COLUMN_ID ", " COLUMN_DATE ", " \
-  COLUMN_PURPOSE ", " COLUMN_EXPENSE " FROM " TABLE_NAME
+#define QUERY_GET_SUM         "SELECT SUM(" COLUMN_EXPENSE ") FROM " \
+                              TABLE_NAME
+#define QUERY_GET_LIST        "SELECT " COLUMN_ID ", " \
+                                        COLUMN_DATE ", " \
+                                        COLUMN_PURPOSE ", " \
+                                        COLUMN_EXPENSE \
+                              " FROM " TABLE_NAME
+#define QUERY_GET_LIST_SINCE  "SELECT " COLUMN_ID ", " \
+                                        COLUMN_DATE ", " \
+                                        COLUMN_PURPOSE ", " \
+                                        COLUMN_EXPENSE \
+                              " FROM " TABLE_NAME \
+                              " WHERE " COLUMN_DATE ">= "
 
+//TODO create function to create the database
+
+sqlite3 *openDatabase(const char *path);
 struct DBList *_dbGetList(const char *query);
+char *dbToDBDate(const char *string);
 
 sqlite3 *openDatabase(const char *path)
 {
@@ -22,6 +36,27 @@ sqlite3 *openDatabase(const char *path)
     return 0;
 
   return db;
+}
+
+char *dbToDBDate(const char *string)
+{
+  char *date;
+  int pos = 0;
+
+  date = (char *)malloc(9);
+
+  for(int i = 0; i < (int)strlen(string); i++)
+  {
+    if(string[i] > 47 && string[i] < 58)
+    {
+      date[pos] = string[i];
+      pos++;
+    }
+  }
+
+  date[pos] = '\0';
+
+  return date;
 }
 
 char *dbGetSum()
@@ -58,6 +93,21 @@ char *dbGetSum()
 struct DBList *dbGetList()
 {
   return _dbGetList(QUERY_GET_LIST);
+}
+
+struct DBList *dbGetListSince(const char *date)
+{
+  char query[strlen(QUERY_GET_LIST_SINCE) + 9];
+  char *dateString;
+
+  dateString = dbToDBDate(date);
+  if(!dateString)
+    return 0;
+
+  strcpy(query, QUERY_GET_LIST_SINCE);
+  strcat(query, dateString);
+
+  return _dbGetList(query);
 }
 
 void dbClearList(struct DBList *list)
