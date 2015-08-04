@@ -14,7 +14,8 @@
                                         COLUMN_DATE ", " \
                                         COLUMN_PURPOSE ", " \
                                         COLUMN_EXPENSE \
-                                " FROM " TABLE_NAME
+                                " FROM " TABLE_NAME \
+                                QUERY_ORDER_BY_DATE
 #define QUERY_GET_LIST_SINCE    "SELECT " COLUMN_ID ", " \
                                           COLUMN_DATE ", " \
                                           COLUMN_PURPOSE ", " \
@@ -22,6 +23,8 @@
                                 " FROM " TABLE_NAME \
                                 " WHERE " COLUMN_DATE " >= "
 #define QUERY_GET_LIST_FROM_TO  " AND " COLUMN_DATE " <= "
+
+#define QUERY_ORDER_BY_DATE     " ORDER BY " COLUMN_DATE
 
 //TODO create function to create the database
 
@@ -98,7 +101,8 @@ struct DBList *dbGetList()
 
 struct DBList *dbGetListSince(const char *date)
 {
-  char query[strlen(QUERY_GET_LIST_SINCE) + 9];
+  char query[strlen(QUERY_GET_LIST_SINCE) + 8
+             + strlen(QUERY_ORDER_BY_DATE)];
   char *dateString;
 
   dateString = dbToDBDate(date);
@@ -107,6 +111,7 @@ struct DBList *dbGetListSince(const char *date)
 
   strcpy(query, QUERY_GET_LIST_SINCE);
   strcat(query, dateString);
+  strcat(query, QUERY_ORDER_BY_DATE);
 
   return _dbGetList(query);
 }
@@ -114,7 +119,8 @@ struct DBList *dbGetListSince(const char *date)
 struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo)
 {
   char query[strlen(QUERY_GET_LIST_SINCE) + 8
-             + strlen(QUERY_GET_LIST_FROM_TO) + 9];
+             + strlen(QUERY_GET_LIST_FROM_TO) + 8
+             + strlen(QUERY_ORDER_BY_DATE)];
   char *dateFromFormatted, *dateToFormatted;
 
   dateFromFormatted = dbToDBDate(dateFrom);
@@ -129,6 +135,7 @@ struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo)
   strcat(query, dateFromFormatted);
   strcat(query, QUERY_GET_LIST_FROM_TO);
   strcat(query, dateToFormatted);
+  strcat(query, QUERY_ORDER_BY_DATE);
 
   return _dbGetList(query);
 }
