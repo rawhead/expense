@@ -8,7 +8,9 @@
 #define COLUMN_PURPOSE  "purpose"
 #define COLUMN_EXPENSE  "expense"
 
-#define QUERY_GET_SUM "SELECT SUM(" COLUMN_EXPENSE ") FROM " TABLE_NAME
+#define QUERY_GET_SUM   "SELECT SUM(" COLUMN_EXPENSE ") FROM " TABLE_NAME
+#define QUERY_GET_LIST  "SELECT (" COLUMN_ID ", " COLUMN_DATE ", " \
+  COLUMN_PURPOSE ", " COLUMN_EXPENSE ")" FROM TABLE_NAME 
 
 sqlite3 *openDatabase(const char *path)
 {
@@ -23,7 +25,7 @@ sqlite3 *openDatabase(const char *path)
 char *dbGetSum()
 {
   char *sum = 0;
-  char *temp;
+  int length = 0;
   int result = 0;
   sqlite3_stmt *statement;
   sqlite3 *db = openDatabase(DATABASE_FILE);
@@ -40,9 +42,9 @@ char *dbGetSum()
 
   if(result == SQLITE_ROW)
   {
-    temp = (char *)sqlite3_column_text(statement, 0);
-    sum = malloc(strlen(temp));
-    strcpy(sum, temp);
+    length = sqlite3_column_bytes(statement, 0);
+    sum = malloc(length);
+    strcpy(sum, (char *)sqlite3_column_text(statement, 0));
   }
 
   sqlite3_finalize(statement);
@@ -50,3 +52,26 @@ char *dbGetSum()
 
   return sum;
 }
+
+/*char **dbGetList()
+{
+  char **list;
+  int result = 0;
+  sqlite3_stmt *statement;
+  sqlite3 *db = openDatabase(DATABASE_FILE);
+
+  if(!db)
+    return 0;
+
+  result = sqlite3_prepare_v2(db, QUERY_GET_LIST, -1, &statement, 0);
+  if(result != SQLITE_OK)
+    return 0;
+
+  result = sqlite3_step(statement);
+  if(result == SQLITE_ROW)
+  {
+    
+  }
+
+  return list;
+}*/
