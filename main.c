@@ -64,13 +64,15 @@ int main(int argc, char **args)
     }
     if(argc > 3)
     {
-      if(!test_date(args[2]))
+      if(!test_date(args[2]) || !test_date(args[2]))
       {
-        fprintf(stderr, "The format of the given date \"%s\" is \
+        fprintf(stderr, "The format of the given dates \"%s\", \"%s\" is \
 not correct. Please use following format: yyyy-mm-dd.\
-Aborting.\n", args[2]);
+Aborting.\n", args[2], args[3]);
         return EINVAL;
       }
+      list = dbGetListFromTo(args[2], args[3]);
+      goto print_list;
     }
     if(argc > 2)
     {

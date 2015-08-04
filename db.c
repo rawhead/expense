@@ -8,19 +8,20 @@
 #define COLUMN_PURPOSE  "purpose"
 #define COLUMN_EXPENSE  "expense"
 
-#define QUERY_GET_SUM         "SELECT SUM(" COLUMN_EXPENSE ") FROM " \
-                              TABLE_NAME
-#define QUERY_GET_LIST        "SELECT " COLUMN_ID ", " \
+#define QUERY_GET_SUM           "SELECT SUM(" COLUMN_EXPENSE ") FROM " \
+                                TABLE_NAME
+#define QUERY_GET_LIST          "SELECT " COLUMN_ID ", " \
                                         COLUMN_DATE ", " \
                                         COLUMN_PURPOSE ", " \
                                         COLUMN_EXPENSE \
-                              " FROM " TABLE_NAME
-#define QUERY_GET_LIST_SINCE  "SELECT " COLUMN_ID ", " \
-                                        COLUMN_DATE ", " \
-                                        COLUMN_PURPOSE ", " \
-                                        COLUMN_EXPENSE \
-                              " FROM " TABLE_NAME \
-                              " WHERE " COLUMN_DATE ">= "
+                                " FROM " TABLE_NAME
+#define QUERY_GET_LIST_SINCE    "SELECT " COLUMN_ID ", " \
+                                          COLUMN_DATE ", " \
+                                          COLUMN_PURPOSE ", " \
+                                          COLUMN_EXPENSE \
+                                " FROM " TABLE_NAME \
+                                " WHERE " COLUMN_DATE " >= "
+#define QUERY_GET_LIST_FROM_TO  " AND " COLUMN_DATE " <= "
 
 //TODO create function to create the database
 
@@ -106,6 +107,28 @@ struct DBList *dbGetListSince(const char *date)
 
   strcpy(query, QUERY_GET_LIST_SINCE);
   strcat(query, dateString);
+
+  return _dbGetList(query);
+}
+
+struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo)
+{
+  char query[strlen(QUERY_GET_LIST_SINCE) + 8
+             + strlen(QUERY_GET_LIST_FROM_TO) + 9];
+  char *dateFromFormatted, *dateToFormatted;
+
+  dateFromFormatted = dbToDBDate(dateFrom);
+  if(!dateFromFormatted)
+    return 0;
+
+  dateToFormatted = dbToDBDate(dateTo);
+  if(!dateToFormatted)
+    return 0;
+
+  strcpy(query, QUERY_GET_LIST_SINCE);
+  strcat(query, dateFromFormatted);
+  strcat(query, QUERY_GET_LIST_FROM_TO);
+  strcat(query, dateToFormatted);
 
   return _dbGetList(query);
 }
