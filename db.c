@@ -111,3 +111,18 @@ struct DBList *dbGetList()
 
   return list;
 }
+
+void dbClearList(struct DBList *list)
+{
+  struct DBList *temp;
+  while(list)
+  {
+    free(list->id);
+    free(list->date);
+    free(list->purpose);
+    free(list->expense);
+    temp = list;
+    list = list->next;
+    free(temp);
+  }
+}

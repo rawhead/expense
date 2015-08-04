@@ -21,6 +21,7 @@ char          *dbGetSum();
 struct DBList *dbGetList();
 struct DBList *dbGetListSince(const char *date);
 struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo);
+void          dbClearList(struct DBList *list);
 char          dbAdd(const char *date, const char *purpose, double expense);
 char          dbDelete(int id);
 

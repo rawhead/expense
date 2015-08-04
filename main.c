@@ -95,6 +95,7 @@ Aborting.\n", args[2]);
              list->expense);
       list = list->next;
     }
+    dbClearList(listBegin);
   }
 
   if(!strcmp(args[1], OPT_ADD))
