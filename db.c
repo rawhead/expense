@@ -9,8 +9,8 @@
 #define COLUMN_EXPENSE  "expense"
 
 #define QUERY_GET_SUM   "SELECT SUM(" COLUMN_EXPENSE ") FROM " TABLE_NAME
-#define QUERY_GET_LIST  "SELECT (" COLUMN_ID ", " COLUMN_DATE ", " \
-  COLUMN_PURPOSE ", " COLUMN_EXPENSE ")" FROM TABLE_NAME 
+#define QUERY_GET_LIST  "SELECT " COLUMN_ID ", " COLUMN_DATE ", " \
+  COLUMN_PURPOSE ", " COLUMN_EXPENSE " FROM " TABLE_NAME
 
 sqlite3 *openDatabase(const char *path)
 {
@@ -43,7 +43,7 @@ char *dbGetSum()
   if(result == SQLITE_ROW)
   {
     length = sqlite3_column_bytes(statement, 0);
-    sum = malloc(length);
+    sum = (char *)malloc(length);
     strcpy(sum, (char *)sqlite3_column_text(statement, 0));
   }
 
@@ -53,10 +53,13 @@ char *dbGetSum()
   return sum;
 }
 
-/*char **dbGetList()
+struct DBList *dbGetList()
 {
-  char **list;
+  struct DBList *list = 0;
+  struct DBList *listCurrent = 0;
+  int length = 0;
   int result = 0;
+  int rows = 0;
   sqlite3_stmt *statement;
   sqlite3 *db = openDatabase(DATABASE_FILE);
 
@@ -68,10 +71,43 @@ char *dbGetSum()
     return 0;
 
   result = sqlite3_step(statement);
-  if(result == SQLITE_ROW)
+  while(result == SQLITE_ROW)
   {
+    if(rows)
+    {
+      listCurrent->next = (struct DBList *)malloc(sizeof(struct DBList));
+      listCurrent = listCurrent->next;
+    }
+    else
+    {
+      list = (struct DBList *)malloc(sizeof(struct DBList));
+      listCurrent = list;
+    }
+    listCurrent->next = 0;
     
+    // ID
+    length = sqlite3_column_bytes(statement, 0);
+    listCurrent->id = (char *)malloc(length);
+    strcpy(listCurrent->id, (char *)sqlite3_column_text(statement, 0));
+
+    // DATE
+    length = sqlite3_column_bytes(statement, 1);
+    listCurrent->date = (char *)malloc(length);
+    strcpy(listCurrent->date, (char *)sqlite3_column_text(statement, 1));
+
+    // PURPOSE
+    length = sqlite3_column_bytes(statement, 2);
+    listCurrent->purpose = (char *)malloc(length);
+    strcpy(listCurrent->purpose, (char *)sqlite3_column_text(statement, 2));
+
+    // EXPENSE
+    length = sqlite3_column_bytes(statement, 3);
+    listCurrent->expense = (char *)malloc(length);
+    strcpy(listCurrent->expense, (char *)sqlite3_column_text(statement, 3));
+
+    rows++;
+    result = sqlite3_step(statement);
   }
 
   return list;
-}*/
+}

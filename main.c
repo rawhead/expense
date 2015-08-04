@@ -81,6 +81,20 @@ Aborting.\n", args[2]);
         return EINVAL;
       }
     }
+    struct DBList *list = dbGetList();
+    struct DBList *listBegin = list;
+    if(!list)
+    {
+      printf("No data available.\n");
+      return 0;
+    }
+    printf("ID\tDATE\t\tPURPOSE\tEXPENSE\n");
+    while(list)
+    {
+      printf("%s\t%s\t%s\t%s\n", list->id, list->date, list->purpose,
+             list->expense);
+      list = list->next;
+    }
   }
 
   if(!strcmp(args[1], OPT_ADD))
