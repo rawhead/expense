@@ -37,7 +37,7 @@ int main(int argc, char **args)
     char *sum = dbGetSum();
     if(!sum)
     {
-      perror("Something bad happened. Aborting");
+      perror("Something bad happened. Aborting\n");
       return -1;
     }
     printf("%s\n", sum);
@@ -125,7 +125,7 @@ Aborting.\n", args[2]);
       }
       if(!dbAdd(args[2], args[3], args[4]))
       {
-        perror("Could not add entry. Aborting");
+        perror("Could not add entry. Aborting\n");
         return -1;
       }
       return 0;
@@ -137,12 +137,13 @@ Aborting.\n", args[2]);
 
     if(!dbAdd(date, args[2], args[3]))
     {
-      perror("Could not add entry. Aborting");
+      perror("Could not add entry. Aborting\n");
       return -1;
     }
     return 0;
   }
 
+  //TODO: take list of ids
   if(!strcmp(args[1], OPT_DELETE))
   {
     if(argc != 3)
@@ -151,14 +152,21 @@ Aborting.\n", args[2]);
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(!test_number(args[3]))
+    if(!test_number(args[2]))
     {
       perror("The value \"%s\" is not a number. Aborting\n");
       return EINVAL;
     }
+    //TODO: check if entry exists
+    if(!dbDelete(args[2]))
+    {
+      perror("Could not delete entry. Aborting.\n");
+      return -1;
+    }
+    return 0;
   }
 
-  fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
+  fprintf(stderr, "Unknown argument :\"%s\". Aborting\n", args[1]);
   return EINVAL;
 }
 

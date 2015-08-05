@@ -23,6 +23,6 @@ struct DBList *dbGetListSince(const char *date);
 struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo);
 void          dbClearList(struct DBList *list);
 char          dbAdd(const char *date, const char *purpose, const char *expense);
-char          dbDelete(int id);
+char          dbDelete(const char *id);
 
 #endif //DB_H

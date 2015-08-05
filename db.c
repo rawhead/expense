@@ -32,6 +32,7 @@
 #define QUERY_ADD_2             ", \""
 #define QUERY_ADD_3             "\", "
 #define QUERY_ADD_4             ")"
+#define QUERY_DELETE            "DELETE FROM " TABLE_NAME " WHERE id="
 
 #define DATE_LENGTH         8
 #define MAX_EXPENSE_LENGTH  10
@@ -253,6 +254,34 @@ char dbAdd(const char *date, const char *purpose, const char *expense)
   strcat(query, QUERY_ADD_3);
   strcat(query, expense);
   strcat(query, QUERY_ADD_4);
+
+  db = openDatabase(DATABASE_FILE);
+  if(!db)
+    return 0;
+
+  result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
+  if(result != SQLITE_OK)
+    return 0;
+
+  result = sqlite3_step(statement);
+  if(result != SQLITE_DONE && result != SQLITE_ROW)
+    return 0;
+
+  sqlite3_finalize(statement);
+
+  return 1;
+}
+
+char dbDelete(const char *id)
+{
+  char query[strlen(QUERY_DELETE)
+             + strlen(id)];
+  int result = 0;
+  sqlite3_stmt *statement;
+  sqlite3 *db;
+
+  strcpy(query, QUERY_DELETE);
+  strcat(query, id);
 
   db = openDatabase(DATABASE_FILE);
   if(!db)
