@@ -53,6 +53,7 @@ int main(int argc, char **args)
     return 0;
   }
 
+  //TODO format date string
   if(!strcmp(args[1], OPT_LIST))
   {
     struct DBList *list;
@@ -95,10 +96,11 @@ print_list:
       printf("No data available.\n");
       return 0;
     }
-    printf("ID\tDATE\t\tPURPOSE\tEXPENSE\n");
+    printf("%-6s%-13s%-18s%s\n", "ID", "DATE", "PURPOSE", "EXPENSE");
+    printf("----------------------------------------------\n");
     while(list)
     {
-      printf("%s\t%s\t%s\t%s\n", list->id, list->date, list->purpose,
+      printf("%-6s%-13s%-18s%s\n", list->id, list->date, list->purpose,
              list->expense);
       list = list->next;
     }
@@ -143,7 +145,7 @@ Aborting.\n", args[2]);
     return 0;
   }
 
-  //TODO: take list of ids
+  //TODO take list of ids
   if(!strcmp(args[1], OPT_DELETE))
   {
     if(argc != 3)
@@ -157,7 +159,7 @@ Aborting.\n", args[2]);
       perror("The value \"%s\" is not a number. Aborting\n");
       return EINVAL;
     }
-    //TODO: check if entry exists
+    //TODO check if entry exists
     if(!dbDelete(args[2]))
     {
       perror("Could not delete entry. Aborting.\n");

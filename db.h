@@ -4,9 +4,10 @@
 #include <sqlite3.h>
 #include <string.h>
 #include <stdlib.h>
-
-//TODO: replace this string with dynamic option to choose database file
-#define DATABASE_FILE "/home/fenk/expense/expense.db"
+#include <stdio.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <unistd.h>
 
 struct DBList
 {

@@ -1,13 +1,24 @@
 #include "db.h"
 
-//TODO: find better name
-#define TABLE_NAME "Bargeld"
+#define NAME ".expense.db"
+#define TABLE_NAME "Expenses"
 
 #define COLUMN_ID       "id"
 #define COLUMN_DATE     "date"
 #define COLUMN_PURPOSE  "purpose"
 #define COLUMN_EXPENSE  "expense"
 
+#define COLUMN_ID_TYPE      "INTEGER PRIMARY KEY AUTOINCREMENT"
+#define COLUMN_DATE_TYPE    "INTEGER NOT NULL"
+#define COLUMN_PURPOSE_TYPE "TEXT NOT NULL"
+#define COLUMN_EXPENSE_TYPE "REAL NOT NULL"
+
+#define QUERY_CREATE_TABLE      "CREATE TABLE IF NOT EXISTS " \
+                                TABLE_NAME "( " \
+                                COLUMN_ID " " COLUMN_ID_TYPE ", " \
+                                COLUMN_DATE " " COLUMN_DATE_TYPE ", " \
+                                COLUMN_PURPOSE " " COLUMN_PURPOSE_TYPE ", " \
+                                COLUMN_EXPENSE " " COLUMN_EXPENSE_TYPE ")"
 #define QUERY_GET_SUM           "SELECT SUM(" COLUMN_EXPENSE ") FROM " \
                                 TABLE_NAME
 #define QUERY_GET_LIST          "SELECT " COLUMN_ID ", " \
@@ -38,18 +49,43 @@
 #define MAX_EXPENSE_LENGTH  10
 #define MAX_PURPOSE_LENGTH  128
 
-//TODO create function to create the database
+//TODO replace string building with strcat, by sqlite3_mprintf
 
-sqlite3 *openDatabase(const char *path);
+sqlite3 *openDatabase();
 struct DBList *_dbGetList(const char *query);
 char *dbToDBDate(const char *string);
 
-sqlite3 *openDatabase(const char *path)
+sqlite3 *openDatabase()
 {
   sqlite3 *db;
-  
-  if(sqlite3_open(path, &db) != SQLITE_OK)
+  int result = 0;
+  sqlite3_stmt *statement;
+  struct passwd *pw;
+
+  pw = getpwuid(getuid());
+  char file[strlen(pw->pw_dir) + 1 + strlen(NAME)];
+  sprintf(file, "%s/%s", pw->pw_dir, NAME);
+
+  result = sqlite3_open_v2(file, &db, SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, 0);
+  if(result != SQLITE_OK)
     return 0;
+
+  result = sqlite3_prepare_v2(db, QUERY_CREATE_TABLE, -1, &statement, 0);
+
+  if(result != SQLITE_OK)
+  {
+    sqlite3_close(db);
+    return 0;
+  }
+
+  result = sqlite3_step(statement);
+  if(result != SQLITE_DONE && result != SQLITE_ROW)
+  {
+    sqlite3_close(db);
+    return 0;
+  }
+
+  sqlite3_finalize(statement);
 
   return db;
 }
@@ -81,7 +117,7 @@ char *dbGetSum()
   int length = 0;
   int result = 0;
   sqlite3_stmt *statement;
-  sqlite3 *db = openDatabase(DATABASE_FILE);
+  sqlite3 *db = openDatabase();
   
   if(!db)
     return sum;
@@ -89,7 +125,10 @@ char *dbGetSum()
   result = sqlite3_prepare_v2(db, QUERY_GET_SUM, -1, &statement, 0);
 
   if(result != SQLITE_OK)
+  {
+    sqlite3_close(db);
     return sum;
+  }
 
   result = sqlite3_step(statement);
 
@@ -178,14 +217,17 @@ struct DBList *_dbGetList(const char *query)
   int result = 0;
   int rows = 0;
   sqlite3_stmt *statement;
-  sqlite3 *db = openDatabase(DATABASE_FILE);
+  sqlite3 *db = openDatabase();
 
   if(!db)
     return 0;
 
   result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
   if(result != SQLITE_OK)
+  {
+    sqlite3_close(db);
     return 0;
+  }
 
   result = sqlite3_step(statement);
   while(result == SQLITE_ROW)
@@ -226,6 +268,9 @@ struct DBList *_dbGetList(const char *query)
     result = sqlite3_step(statement);
   }
 
+  sqlite3_finalize(statement);
+  sqlite3_close(db);
+
   return list;
 }
 
@@ -255,19 +300,26 @@ char dbAdd(const char *date, const char *purpose, const char *expense)
   strcat(query, expense);
   strcat(query, QUERY_ADD_4);
 
-  db = openDatabase(DATABASE_FILE);
+  db = openDatabase();
   if(!db)
     return 0;
 
   result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
   if(result != SQLITE_OK)
+  {
+    sqlite3_close(db);
     return 0;
+  }
 
   result = sqlite3_step(statement);
   if(result != SQLITE_DONE && result != SQLITE_ROW)
+  {
+    sqlite3_close(db);
     return 0;
+  }
 
   sqlite3_finalize(statement);
+  sqlite3_close(db);
 
   return 1;
 }
@@ -283,19 +335,26 @@ char dbDelete(const char *id)
   strcpy(query, QUERY_DELETE);
   strcat(query, id);
 
-  db = openDatabase(DATABASE_FILE);
+  db = openDatabase();
   if(!db)
     return 0;
 
   result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
   if(result != SQLITE_OK)
+  {
+    sqlite3_close(db);
     return 0;
+  }
 
   result = sqlite3_step(statement);
   if(result != SQLITE_DONE && result != SQLITE_ROW)
+  {
+    sqlite3_close(db);
     return 0;
+  }
 
   sqlite3_finalize(statement);
+  sqlite3_close(db);
 
   return 1;
 }
