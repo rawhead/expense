@@ -32,13 +32,6 @@ char *formatDate(const char *string, enum DateType dateType);
 
 int main(int argc, char **args)
 {
-  if(argc > 5)
-  {
-    perror("Too much arguments. Aborting.\n");
-    printf(USAGE, args[0]);
-    return EINVAL;
-  }
-
   if(argc < 2)
   {
     char *sum = dbGetSum();
@@ -125,7 +118,13 @@ print_list:
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(argc > 4)
+    if(argc < 4)
+    {
+      perror("To much arguments for option \"add\". Aborting.\n");
+      printf(USAGE, args[0]);
+      return EINVAL;
+    }
+    if(argc == 5)
     {
       if(!testDate(args[2]))
       {
@@ -154,25 +153,33 @@ Aborting.\n", args[2]);
     return 0;
   }
 
-  //TODO take list of ids
   if(!strcmp(args[1], OPT_DELETE))
   {
-    if(argc != 3)
+    if(argc < 3)
     {
-      perror("Wrong number of arguments for option \"delete\". Aborting\n");
+      perror("Not enough arguments for option \"delete\". Aborting\n");
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(!testNumber(args[2]))
+    
+    char *ids[argc - 2];
+    for(int i = 2; i < argc; i++)
     {
-      perror("The value \"%s\" is not a number. Aborting\n");
-      return EINVAL;
+      if(!testNumber(args[i]))
+      {
+        fprintf(stderr, "The value \"%s\" is not a number. Aborting\n", args[i]);
+        return EINVAL;
+      }
+      ids[i - 2] = (char *)malloc(strlen(args[i]));
+      strcpy(ids[i - 2], args[i]);
     }
-    //TODO check if entry exists
-    if(!dbDelete(args[2]))
+    for(int i = 0; i < argc - 2; i++)
     {
-      perror("Could not delete entry. Aborting.\n");
-      return -1;
+      if(!dbDelete(ids[i]))
+      {
+        fprintf(stderr, "Could not delete entry %s. Aborting.\n", ids[i]);
+        return -1;
+      }
     }
     return 0;
   }
