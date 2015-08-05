@@ -49,8 +49,6 @@
 #define MAX_EXPENSE_LENGTH  10
 #define MAX_PURPOSE_LENGTH  128
 
-//TODO replace string building with strcat, by sqlite3_mprintf
-
 sqlite3 *openDatabase();
 struct DBList *_dbGetList(const char *query);
 char *dbToDBDate(const char *string);
@@ -161,9 +159,10 @@ struct DBList *dbGetListSince(const char *date)
   if(!dateString)
     return 0;
 
-  strcpy(query, QUERY_GET_LIST_SINCE);
-  strcat(query, dateString);
-  strcat(query, QUERY_ORDER_BY_DATE);
+  sprintf(query, "%s%s%s",
+          QUERY_GET_LIST_SINCE,
+          dateString,
+          QUERY_ORDER_BY_DATE);
 
   return _dbGetList(query);
 }
@@ -185,11 +184,12 @@ struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo)
   if(!dateToFormatted)
     return 0;
 
-  strcpy(query, QUERY_GET_LIST_SINCE);
-  strcat(query, dateFromFormatted);
-  strcat(query, QUERY_GET_LIST_FROM_TO);
-  strcat(query, dateToFormatted);
-  strcat(query, QUERY_ORDER_BY_DATE);
+  sprintf(query, "%s%s%s%s%s",
+          QUERY_GET_LIST_SINCE,
+          dateFromFormatted,
+          QUERY_GET_LIST_FROM_TO,
+          dateToFormatted,
+          QUERY_ORDER_BY_DATE);
 
   return _dbGetList(query);
 }
@@ -292,13 +292,14 @@ char dbAdd(const char *date, const char *purpose, const char *expense)
   if(!dateFormatted)
     return 0;
 
-  strcpy(query, QUERY_ADD_1);
-  strcat(query, dateFormatted);
-  strcat(query, QUERY_ADD_2);
-  strcat(query, purpose);
-  strcat(query, QUERY_ADD_3);
-  strcat(query, expense);
-  strcat(query, QUERY_ADD_4);
+  sprintf(query, "%s%s%s%s%s%s%s",
+          QUERY_ADD_1,
+          dateFormatted,
+          QUERY_ADD_2,
+          purpose,
+          QUERY_ADD_3,
+          expense,
+          QUERY_ADD_4);
 
   db = openDatabase();
   if(!db)
@@ -332,8 +333,9 @@ char dbDelete(const char *id)
   sqlite3_stmt *statement;
   sqlite3 *db;
 
-  strcpy(query, QUERY_DELETE);
-  strcat(query, id);
+  sprintf(query, "%s%s",
+          QUERY_DELETE,
+          id);
 
   db = openDatabase();
   if(!db)
