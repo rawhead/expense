@@ -23,8 +23,19 @@
                                 " FROM " TABLE_NAME \
                                 " WHERE " COLUMN_DATE " >= "
 #define QUERY_GET_LIST_FROM_TO  " AND " COLUMN_DATE " <= "
-
 #define QUERY_ORDER_BY_DATE     " ORDER BY " COLUMN_DATE
+#define QUERY_ADD_1             "INSERT INTO " TABLE_NAME "(" \
+                                COLUMN_DATE ", " \
+                                COLUMN_PURPOSE ", " \
+                                COLUMN_EXPENSE \
+                                ") VALUES ("
+#define QUERY_ADD_2             ", \""
+#define QUERY_ADD_3             "\", "
+#define QUERY_ADD_4             ")"
+
+#define DATE_LENGTH         8
+#define MAX_EXPENSE_LENGTH  10
+#define MAX_PURPOSE_LENGTH  128
 
 //TODO create function to create the database
 
@@ -47,7 +58,7 @@ char *dbToDBDate(const char *string)
   char *date;
   int pos = 0;
 
-  date = (char *)malloc(9);
+  date = (char *)malloc(DATE_LENGTH + 1);
 
   for(int i = 0; i < (int)strlen(string); i++)
   {
@@ -101,7 +112,8 @@ struct DBList *dbGetList()
 
 struct DBList *dbGetListSince(const char *date)
 {
-  char query[strlen(QUERY_GET_LIST_SINCE) + 8
+  char query[strlen(QUERY_GET_LIST_SINCE)
+             + DATE_LENGTH
              + strlen(QUERY_ORDER_BY_DATE)];
   char *dateString;
 
@@ -118,8 +130,10 @@ struct DBList *dbGetListSince(const char *date)
 
 struct DBList *dbGetListFromTo(const char *dateFrom, const char *dateTo)
 {
-  char query[strlen(QUERY_GET_LIST_SINCE) + 8
-             + strlen(QUERY_GET_LIST_FROM_TO) + 8
+  char query[strlen(QUERY_GET_LIST_SINCE)
+             + DATE_LENGTH
+             + strlen(QUERY_GET_LIST_FROM_TO)
+             + DATE_LENGTH
              + strlen(QUERY_ORDER_BY_DATE)];
   char *dateFromFormatted, *dateToFormatted;
 
@@ -212,4 +226,47 @@ struct DBList *_dbGetList(const char *query)
   }
 
   return list;
+}
+
+char dbAdd(const char *date, const char *purpose, const char *expense)
+{
+  char query[strlen(QUERY_ADD_1)
+             + DATE_LENGTH
+             + strlen(QUERY_ADD_2)
+             + MAX_PURPOSE_LENGTH
+             + strlen(QUERY_ADD_3)
+             + MAX_EXPENSE_LENGTH
+             + strlen(QUERY_ADD_4)];
+  char *dateFormatted;
+  int result = 0;
+  sqlite3_stmt *statement;
+  sqlite3 *db;
+
+  dateFormatted = dbToDBDate(date);
+  if(!dateFormatted)
+    return 0;
+
+  strcpy(query, QUERY_ADD_1);
+  strcat(query, dateFormatted);
+  strcat(query, QUERY_ADD_2);
+  strcat(query, purpose);
+  strcat(query, QUERY_ADD_3);
+  strcat(query, expense);
+  strcat(query, QUERY_ADD_4);
+
+  db = openDatabase(DATABASE_FILE);
+  if(!db)
+    return 0;
+
+  result = sqlite3_prepare_v2(db, query, -1, &statement, 0);
+  if(result != SQLITE_OK)
+    return 0;
+
+  result = sqlite3_step(statement);
+  if(result != SQLITE_DONE && result != SQLITE_ROW)
+    return 0;
+
+  sqlite3_finalize(statement);
+
+  return 1;
 }

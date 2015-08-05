@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "db.h"
 
 #define USAGE "\
@@ -24,7 +25,7 @@ char test_number(const char *string);
 
 int main(int argc, char **args)
 {
-  if(argc > 4)
+  if(argc > 5)
   {
     perror("Too much arguments. Aborting.\n");
     printf(USAGE, args[0]);
@@ -102,6 +103,7 @@ print_list:
       list = list->next;
     }
     dbClearList(listBegin);
+    return 0;
   }
 
   if(!strcmp(args[1], OPT_ADD))
@@ -121,27 +123,43 @@ not correct. Please use following format: yyyy-mm-dd.\
 Aborting.\n", args[2]);
         return EINVAL;
       }
-      args++;
+      if(!dbAdd(args[2], args[3], args[4]))
+      {
+        perror("Could not add entry. Aborting");
+        return -1;
+      }
+      return 0;
     }
+    time_t t = time(0);
+    struct tm tm = *localtime(&t);
+    char date[11];
+    strftime(date, 11, "%Y-%m-%d", &tm);
 
-    if(!strcmp(args[1], OPT_DELETE))
+    if(!dbAdd(date, args[2], args[3]))
     {
-      if(argc != 3)
-      {
-        perror("Wrong number of arguments for option \"delete\". Aborting\n");
-        printf(USAGE, args[0]);
-        return EINVAL;
-      }
-      if(!test_number(args[3]))
-      {
-        perror("The value \"%s\" is not a number. Aborting\n");
-        return EINVAL;
-      }
+      perror("Could not add entry. Aborting");
+      return -1;
     }
-
-    fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
-    return EINVAL;
+    return 0;
   }
+
+  if(!strcmp(args[1], OPT_DELETE))
+  {
+    if(argc != 3)
+    {
+      perror("Wrong number of arguments for option \"delete\". Aborting\n");
+      printf(USAGE, args[0]);
+      return EINVAL;
+    }
+    if(!test_number(args[3]))
+    {
+      perror("The value \"%s\" is not a number. Aborting\n");
+      return EINVAL;
+    }
+  }
+
+  fprintf(stderr, "Unknown argument :\"%s\". Aborting", args[1]);
+  return EINVAL;
 }
 
 char test_date(const char *string)
