@@ -20,8 +20,15 @@ help\t\t\t\tshow this text\n"
 #define OPT_HELP_2  "-h"
 #define OPT_HELP_3  "--help"
 
-char test_date(const char *string);
-char test_number(const char *string);
+enum DateType
+{
+  DMY,
+  YMD
+};
+
+char testDate(const char *string);
+char testNumber(const char *string);
+char *formatDate(const char *string, enum DateType dateType);
 
 int main(int argc, char **args)
 {
@@ -53,7 +60,6 @@ int main(int argc, char **args)
     return 0;
   }
 
-  //TODO format date string
   if(!strcmp(args[1], OPT_LIST))
   {
     struct DBList *list;
@@ -66,7 +72,7 @@ int main(int argc, char **args)
     }
     if(argc > 3)
     {
-      if(!test_date(args[2]) || !test_date(args[2]))
+      if(!testDate(args[2]) || !testDate(args[2]))
       {
         fprintf(stderr, "The format of the given dates \"%s\", \"%s\" is \
 not correct. Please use following format: yyyy-mm-dd.\
@@ -78,7 +84,7 @@ Aborting.\n", args[2], args[3]);
     }
     if(argc > 2)
     {
-      if(!test_date(args[2]))
+      if(!testDate(args[2]))
       {
         fprintf(stderr, "The format of the given date \"%s\" is \
 not correct. Please use following format: yyyy-mm-dd.\
@@ -100,7 +106,10 @@ print_list:
     printf("----------------------------------------------\n");
     while(list)
     {
-      printf("%-6s%-13s%-18s%s\n", list->id, list->date, list->purpose,
+      printf("%-6s%-13s%-18s%s\n",
+             list->id,
+             formatDate(list->date, YMD),
+             list->purpose,
              list->expense);
       list = list->next;
     }
@@ -118,7 +127,7 @@ print_list:
     }
     if(argc > 4)
     {
-      if(!test_date(args[2]))
+      if(!testDate(args[2]))
       {
         fprintf(stderr, "The format of the given date \"%s\" is \
 not correct. Please use following format: yyyy-mm-dd.\
@@ -154,7 +163,7 @@ Aborting.\n", args[2]);
       printf(USAGE, args[0]);
       return EINVAL;
     }
-    if(!test_number(args[2]))
+    if(!testNumber(args[2]))
     {
       perror("The value \"%s\" is not a number. Aborting\n");
       return EINVAL;
@@ -172,7 +181,7 @@ Aborting.\n", args[2]);
   return EINVAL;
 }
 
-char test_date(const char *string)
+char testDate(const char *string)
 {
   int i = 0;
 
@@ -208,7 +217,7 @@ char test_date(const char *string)
   return 1;
 }
 
-char test_number(const char *string)
+char testNumber(const char *string)
 {
   for(int i = 0; i < (int)strlen(string); i++)
   {
@@ -217,4 +226,47 @@ char test_number(const char *string)
       return 0;
   }
   return 1;
+}
+
+char *formatDate(const char *string, enum DateType dateType)
+{
+  char *date;
+  char year[5];
+  char month[3];
+  char day[3];
+  int i = 0;
+
+  date = (char *)malloc(11);
+
+  if(testNumber(string))
+  {
+    if(strlen(string) != 8)
+      return 0;
+
+    for(i = 0; i < 4; i++)
+      year[i] = string[i];
+    year[i] = '\0';
+    for(i = 0; i < 2; i++)
+      month[i] = string[i + 4];
+    month[i] = '\0';
+    for(i = 0; i < 2; i++)
+      day[i] = string[i + 6];
+    day[i] = '\0';
+  }
+
+  switch(dateType)
+  {
+    case YMD:
+      sprintf(date, "%s-%s-%s", year, month, day);
+      break;
+
+    case DMY:
+      sprintf(date, "%s.%s.%s", day, month, year);
+      break;
+
+    default:
+      return 0;
+  }
+
+  return date;
 }
