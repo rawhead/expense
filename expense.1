@@ -1,0 +1,28 @@
+.TH EXPENSE 1
+.SH NAME
+expense \- manages expenses
+.SH SYNOPSIS
+.B expense
+[\fBoption\fR \fI...\fR]
+.SH DESCRIPTION
+.B expense
+manage expanses using a database
+.SH OPTIONS
+.TP
+.BR list " " [\fIDATE_FROM\fR [\fIDATE_TO\fR]]
+Returns a list of expenses.
+Either all entrys, or entrys from a given date, or entrys from the given period.
+.TP
+.BR add " " [\fIDATE\fR] " " \fIPURPOSE\fR " " \fIEXPENSE\fR
+Adds a new entry.
+.TP
+.BR delete " " \fIID\fR " " [\fIIDs\.\.\.\fR]
+Deletes an entry by ID.
+It can also take a list of IDs.
+.TP
+.BR help
+Show the usage text.
+.SH FORMATS
+.TP
+.BR DATE
+must have the YMD format: yyyy-mm-dd
