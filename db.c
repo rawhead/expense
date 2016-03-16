@@ -150,8 +150,16 @@ char *dbGetSum()
   if(result == SQLITE_ROW)
   {
     length = sqlite3_column_bytes(statement, 0);
-    sum = (char *)malloc(length);
-    strcpy(sum, (char *)sqlite3_column_text(statement, 0));
+    if(length)
+    {
+      sum = (char *)malloc(length);
+      strcpy(sum, (char *)sqlite3_column_text(statement, 0));
+    }
+    else
+    {
+      sum = (char *)malloc(2);
+      strcpy(sum, "0");
+    }
   }
 
   sqlite3_finalize(statement);
